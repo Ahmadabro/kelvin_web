@@ -4,9 +4,12 @@ from groq import Groq
 
 app = Flask(__name__)
 
-# Initialize the Groq client
-# We use os.environ.get to pull from Vercel's Environment Variables
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+# Use os.environ.get. Vercel injects the API key directly into the environment
+# when you add it to the Project Settings > Environment Variables.
+api_key = os.environ.get("GROQ_API_KEY")
+
+# Initialize client only if key exists, otherwise handle it gracefully
+client = Groq(api_key=api_key) if api_key else None
 
 @app.route('/')
 def index():
@@ -14,6 +17,9 @@ def index():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
+    if not client:
+        return jsonify({"error": "AI Service not configured"}), 500
+        
     data = request.get_json()
     user_input = data.get("prompt")
     
@@ -30,7 +36,7 @@ def chat():
         return jsonify({"reply": reply})
             
     except Exception as e:
-        return jsonify({"error": f"Groq API Error: {str(e)}"}), 500
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
