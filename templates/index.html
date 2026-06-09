@@ -2,21 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Essential configuration parameter layout settings for responsive viewport handling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KELVIN ENGINE v4.0</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://jsdelivr.net"></script>
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <script src="https://cloudflare.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-    <header>KELVIN ENGINE</header>
+    <header>KELVIN ENGINE v4.0</header>
 
     <div id="chat-window">
-        </div>
+        <div class="bubble ai">System Ready. Awaiting prompt guidelines...</div>
+    </div>
 
     <div class="input-zone">
-        <input type="text" id="query" placeholder="Ask Kelvin...">
+        <input type="text" id="query" placeholder="Ask Kelvin..." autocomplete="off">
         <button id="send-btn" onclick="sendQuery()">EXECUTE</button>
     </div>
 
@@ -31,12 +34,12 @@
             
             btn.disabled = true;
             
-            // User Message
-            chat.innerHTML += `<div class="bubble user">YOU: ${prompt}</div>`;
+            // Render User Bubble
+            chat.innerHTML += `<div class="bubble user">${prompt}</div>`;
             input.value = '';
             
-            // Thinking
-            chat.innerHTML += `<div id="loading" class="bubble ai">Kelvin is calculating...</div>`;
+            // Render Elegant Loading State
+            chat.innerHTML += `<div id="loading" class="bubble ai">Processing query stream...</div>`;
             chat.scrollTop = chat.scrollHeight;
 
             try {
@@ -52,15 +55,28 @@
                 if (res.ok) {
                     const htmlContent = marked.parse(data.reply);
                     chat.innerHTML += `<div class="bubble ai">${htmlContent}</div>`;
+                } else {
+                    chat.innerHTML += `<div class="bubble ai" style="color: #ef4444;">System Override: ${data.error}</div>`;
                 }
             } catch (err) {
                 document.getElementById('loading').remove();
-                chat.innerHTML += `<div class="bubble ai">Connection error.</div>`;
+                chat.innerHTML += `<div class="bubble ai" style="color: #ef4444;">Network link failure.</div>`;
             }
             
+            // Re-initialize code block syntax styling checks
             hljs.highlightAll();
-            chat.scrollTop = chat.scrollHeight;
+            
+            // Smoothly track conversation downward
+            setTimeout(() => {
+                chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+            }, 50);
+            
             btn.disabled = false;
+            
+            // Auto re-focus input area for seamless desktop execution
+            if(window.innerWidth > 768) {
+                input.focus();
+            }
         }
 
         document.getElementById('query').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendQuery(); });
