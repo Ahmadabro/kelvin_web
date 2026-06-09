@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__)
+# Point to parent directories for templates and design assets
+app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
-# Initialize using the official Groq library to prevent 405 endpoint errors
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
@@ -18,19 +18,17 @@ def index():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    data = request.get_json()
+    data = request.get_json() or {}
     user_input = data.get("prompt")
     
     if not user_input:
         return jsonify({"error": "Prompt cannot be blank."}), 400
     
     try:
-        # Fetching response via native Groq SDK channels
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": user_input}]
         )
-        
         reply = response.choices[0].message.content
         return jsonify({"reply": reply})
             
