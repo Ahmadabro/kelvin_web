@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Essential configuration parameter layout settings for responsive viewport handling -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KELVIN ENGINE v4.0</title>
     <script src="https://jsdelivr.net"></script>
@@ -34,11 +33,11 @@
             
             btn.disabled = true;
             
-            // Render User Bubble
+            // Stream User Prompt Content
             chat.innerHTML += `<div class="bubble user">${prompt}</div>`;
             input.value = '';
             
-            // Render Elegant Loading State
+            // Build Dynamic AI Processing Spinner State
             chat.innerHTML += `<div id="loading" class="bubble ai">Processing query stream...</div>`;
             chat.scrollTop = chat.scrollHeight;
 
@@ -56,24 +55,24 @@
                     const htmlContent = marked.parse(data.reply);
                     chat.innerHTML += `<div class="bubble ai">${htmlContent}</div>`;
                 } else {
-                    chat.innerHTML += `<div class="bubble ai" style="color: #ef4444;">System Override: ${data.error}</div>`;
+                    chat.innerHTML += `<div class="bubble ai" style="color: #ef4444;">System Override Error: ${data.error}</div>`;
                 }
             } catch (err) {
                 document.getElementById('loading').remove();
-                chat.innerHTML += `<div class="bubble ai" style="color: #ef4444;">Network link failure.</div>`;
+                chat.innerHTML += `<div class="bubble ai" style="color: #ef4444;">Core link failure.</div>`;
             }
             
-            // Re-initialize code block syntax styling checks
+            // Apply code formatting highlighting styles
             hljs.highlightAll();
             
-            // Smoothly track conversation downward
+            // Slide window viewpoint smoothly downward
             setTimeout(() => {
                 chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
             }, 50);
             
             btn.disabled = false;
             
-            // Auto re-focus input area for seamless desktop execution
+            // Return cursor tracking focus on desktop monitors
             if(window.innerWidth > 768) {
                 input.focus();
             }

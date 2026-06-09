@@ -3,14 +3,15 @@ from flask import Flask, render_template, request, jsonify
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# Load local environment configuration if available
 load_dotenv()
 
 app = Flask(__name__)
 
-# Initialize the Groq client (using OpenAI-compatible format)
+# Initialize the Groq client using the official OpenAI-compatible structure
 client = OpenAI(
     api_key=os.getenv("GROQ_API_KEY"),
-    base_url="https://api.groq.com/openai/v1"
+    base_url="https://groq.com"
 )
 
 @app.route('/')
@@ -22,8 +23,11 @@ def chat():
     data = request.get_json()
     user_input = data.get("prompt")
     
+    if not user_input:
+        return jsonify({"error": "Prompt parameter cannot be blank."}), 400
+    
     try:
-        # We use a fast, stable model: llama-3.3-70b-versatile
+        # Utilizing a high-performance, long-context model
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": user_input}]
@@ -33,8 +37,9 @@ def chat():
         return jsonify({"reply": reply})
             
     except Exception as e:
-        return jsonify({"error": f"API Error: {str(e)}"}), 500
+        return jsonify({"error": f"API Connection Error: {str(e)}"}), 500
 
 if __name__ == '__main__':
+    # Dynamically bind to the cloud host target deployment port
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
