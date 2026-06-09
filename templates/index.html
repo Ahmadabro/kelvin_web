@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KELVIN ENGINE v4.0</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header>KELVIN ENGINE</header>
+
+    <div id="chat-window">
+        </div>
+
+    <div class="input-zone">
+        <input type="text" id="query" placeholder="Ask Kelvin...">
+        <button id="send-btn" onclick="sendQuery()">EXECUTE</button>
+    </div>
+
+    <script>
+        async function sendQuery() {
+            const input = document.getElementById('query');
+            const chat = document.getElementById('chat-window');
+            const btn = document.getElementById('send-btn');
+            const prompt = input.value.trim();
+            
+            if (!prompt) return;
+            
+            btn.disabled = true;
+            
+            // User Message
+            chat.innerHTML += `<div class="bubble user">YOU: ${prompt}</div>`;
+            input.value = '';
+            
+            // Thinking
+            chat.innerHTML += `<div id="loading" class="bubble ai">Kelvin is calculating...</div>`;
+            chat.scrollTop = chat.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({prompt: prompt})
+                });
+                
+                const data = await res.json();
+                document.getElementById('loading').remove();
+
+                if (res.ok) {
+                    const htmlContent = marked.parse(data.reply);
+                    chat.innerHTML += `<div class="bubble ai">${htmlContent}</div>`;
+                }
+            } catch (err) {
+                document.getElementById('loading').remove();
+                chat.innerHTML += `<div class="bubble ai">Connection error.</div>`;
+            }
+            
+            hljs.highlightAll();
+            chat.scrollTop = chat.scrollHeight;
+            btn.disabled = false;
+        }
+
+        document.getElementById('query').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendQuery(); });
+    </script>
+</body>
+</html>
