@@ -1,14 +1,12 @@
 import os
 from flask import Flask, render_template, request, jsonify
 from groq import Groq
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__)
 
 # Initialize the Groq client
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+# We use os.environ.get to pull from Vercel's Environment Variables
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 @app.route('/')
 def index():
@@ -23,7 +21,6 @@ def chat():
         return jsonify({"error": "Prompt parameter cannot be blank."}), 400
 
     try:
-        # Corrected the typo: llama instead of llana
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": user_input}]
@@ -36,6 +33,4 @@ def chat():
         return jsonify({"error": f"Groq API Error: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    # Using a default port of 5000 if PORT env var is missing
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(debug=True, port=5000)
