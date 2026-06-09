@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Explicitly map path targets outside the api sub-folder
-app = Flask(__name__, template_folder='../templates', static_folder='../static')
+app = Flask(__name__)
 
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
@@ -33,4 +32,8 @@ def chat():
         return jsonify({"reply": reply})
             
     except Exception as e:
-        return jsonify({"error": f"Groq API Error: {str(e)}"}), 500
+        return jsonify({"error": f"Groq API Link Failure: {str(e)}"}), 500
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
