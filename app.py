@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Official zero-config initialization
 app = Flask(__name__)
 
 client = Groq(
@@ -32,7 +33,7 @@ def chat():
         return jsonify({"reply": reply})
             
     except Exception as e:
-        return jsonify({"error": f"Groq API Link Failure: {str(e)}"}), 500
+        return jsonify({"error": f"Groq API Error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
